@@ -16,20 +16,25 @@ public class PropertyAdapter {
     
     private static final ObjectMapper MAPPER = new ObjectMapper();
     
-    public static UnityOrderDTO doConvert(OrderDTO orderDTO, Map<String, String> link) throws IOException {
-        Map<String, Object> map = MAPPER.convertValue(orderDTO, new TypeReference<Map<String, Object>>() {
-        });
+    private static final TypeReference<Map<String, Object>> TYPE_REFERENCE = new TypeReference<Map<String, Object>>() {
+    };
+    
+    public static UnityOrderDTO doConvert(OrderDTO orderDTO, Map<String, String> link) {
+        
+        Map<String, Object> map = MAPPER.convertValue(orderDTO, TYPE_REFERENCE);
+        
         return doConvert(map, link);
     }
     
     
-    public static UnityOrderDTO doConvert(PopOrderDTO orderDTO, Map<String, String> link) throws IOException {
-        Map<String, Object> map = MAPPER.convertValue(orderDTO, new TypeReference<Map<String, Object>>() {
-        });
+    public static UnityOrderDTO doConvert(PopOrderDTO orderDTO, Map<String, String> link) {
+        
+        Map<String, Object> map = MAPPER.convertValue(orderDTO, TYPE_REFERENCE);
+        
         return doConvert(map, link);
     }
     
-    private static UnityOrderDTO doConvert(Map<String, Object> orderMap, Map<String, String> link) throws IOException {
+    private static UnityOrderDTO doConvert(Map<String, Object> orderMap, Map<String, String> link) {
         UnityOrderDTO result = null;
         
         // 根据link字段转换
@@ -42,7 +47,12 @@ public class PropertyAdapter {
         }
         
         if (!newOrderMap.isEmpty()) {
-            result = MAPPER.readValue(MAPPER.writeValueAsString(newOrderMap), UnityOrderDTO.class);
+            try {
+                String orderJson = MAPPER.writeValueAsString(newOrderMap);
+                result = MAPPER.readValue(orderJson, UnityOrderDTO.class);
+            } catch (IOException ignored) {
+                // 忽略异常
+            }
         }
         
         return result;
